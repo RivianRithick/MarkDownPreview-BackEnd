@@ -1,13 +1,10 @@
 import mongoose from "mongoose";
 
-const markdownSchema = new mongoose.Schema({
-  content: String,
-  timestamp: {
-    type: Date,
-    default: Date.now,
-  },
+const contentSchema = new mongoose.Schema({
+  email: String,
+  data: String,
 });
 
-const Markdown = mongoose.model("Markdown", markdownSchema);
+const Content = mongoose.model("Content", contentSchema);
 
-export default Markdown;
+export default Content;

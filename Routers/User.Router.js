@@ -1,12 +1,9 @@
 import express from "express";
 import {
-    CreateMarkDown,
-    ListAllUsers,
+  CreateMarkDown,
+  CreateMarkDownSave,
+  ListAllUsers,
   Loginuser,
-//   MarkDownList,
-  MarkDownListById,
-  MarkDownListDelete,
-  MarkDownListUpdate,
   RegisterUser,
   ResetPassword,
   forgotPassword,
@@ -20,9 +17,6 @@ userRouter.post("/forgotpassword", forgotPassword);
 userRouter.put("/resetpassword", ResetPassword);
 userRouter.get("/listallusers", ListAllUsers)
 userRouter.post('/create-markdown', CreateMarkDown)
-// userRouter.get('/markdown-list', MarkDownList)
-userRouter.get("/markdown/:id", MarkDownListById);
-userRouter.put('/update-markdown/:id',MarkDownListUpdate )
-userRouter.delete("/delete-markdown/:id", MarkDownListDelete);
+userRouter.post("/save/:email", CreateMarkDownSave);
 
 export default userRouter;

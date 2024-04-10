@@ -1,14 +1,34 @@
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import User from "../Models/User.Schema.js";
-import Markdown from "../Models/MarkDown.Schema.js";
+import Content from "../Models/MarkDown.Schema.js";
 import jwt from "jsonwebtoken";
 import { sendMail } from "../Services/SendMail.js";
+
 dotenv.config();
+
+//Service
+// Function to save content
+async function saveContent(email, data) {
+  return await Content.create({ email: email, data: data });
+}
+
+// Function to update content by email
+async function updateContentByEmail(email, data) {
+  return await Content.updateOne({ email: email }, { $set: { data: data } });
+}
+
+async function savedData(email) {
+  return await Content.findOne({ email: email });
+}
+
+async function mduser(email) {
+  return await Content.findOne({ email: email });
+}
 
 export const RegisterUser = async (req, res) => {
   try {
-    const { firstname, lastname, email, password} = req.body;
+    const { firstname, lastname, email, password } = req.body;
     const hashPassword = await bcrypt.hash(password, 10);
     const emailid = await User.findOne({ email });
 
@@ -48,11 +68,26 @@ export const Loginuser = async (req, res) => {
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
+
     user.token = token;
     await user.save();
-    res
-      .status(200)
-      .json({ message: "Login Successful", token: token, data: user });
+    const userData = await savedData(user.email);
+    if (userData) {
+      res.status(200).json({
+        message: "Login Successful",
+        token: token,
+        data: user,
+        content: userData.data,
+      });
+    } else {
+      res.status(200).json({
+        message: "Login Successful",
+        token: token,
+        data: user,
+        content: "# Markdown Viewer",
+      });
+    }
+    
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Login Failed" });
@@ -146,85 +181,36 @@ export const CreateMarkDown = async (req, res) => {
     res.status(201).send(newMarkdown);
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: "Server error" });
   }
 };
 
-// // Get all markdown documents
-// export const MarkDownList = async (req, res) => {
-//   try {
-//     const markdownList = await Markdown.find();
-//     res.send(markdownList);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send({ message: 'Server error' });
-//   }
-// };
-
-// Get a single markdown document by ID
-export const MarkDownListById = async (req, res) => {
+export const CreateMarkDownSave = async function (request, response) {
   try {
-    const markdown = await Markdown.findById(req.params.id);
-    if (!markdown) {
-      return res.status(404).send({ message: 'Markdown document not found' });
+    const { email } = request.params;
+    const { data } = request.body;
+
+    console.log(data, email);
+
+    const userfromDB = await mduser(email);
+
+    if (userfromDB) {
+      const updateData = await updateContentByEmail(email, data);
+      if (updateData) {
+        response.json({ message: "Content updated Successfully" });
+      } else {
+        response.json({ message: "Something went wrong" });
+      }
+    } else {
+      const result = await saveContent(email, data);
+      if (result) {
+        response.json({ message: "Saved Successfully" });
+      } else {
+        response.json({ message: "Something went wrong" });
+      }
     }
-    res.send(markdown);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: 'Server error' });
+  }catch (error) {
+    console.log(error);
   }
 };
-
-// Update a markdown document
-export const MarkDownListUpdate = async (req, res) => {
-  try {
-    const { content } = req.body;
-
-    if (!content) {
-      return res.status(400).send({ message: 'Content is required' });
-    }
-
-    const updatedMarkdown = await Markdown.findByIdAndUpdate(
-      req.params.id,
-      { content },
-      { new: true }
-    );
-
-    if (!updatedMarkdown) {
-      return res.status(404).send({ message: 'Markdown document not found' });
-    }
-
-    res.send(updatedMarkdown);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: 'Server error' });
-  }
-};
-
-
-// Delete a markdown document
-export const MarkDownListDelete = async (req, res) => {
-  try {
-    const deletedMarkdown = await Markdown.findByIdAndRemove(req.params.id);
-    if (!deletedMarkdown) {
-      return res.status(404).send({ message: 'Markdown document not found' });
-    }
-    res.send({ message: 'Markdown document deleted' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: 'Server error' });
-  }
-};
-
-// // Fetch data for chart
-// router.get('/fetch-data', async (req, res) => {
-//   try {
-//     const totalMarkdowns = await Markdown.countDocuments();
-//     const totalUsers = await User.countDocuments();
-//     res.json({ totalMarkdowns, totalUsers });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// });
 
