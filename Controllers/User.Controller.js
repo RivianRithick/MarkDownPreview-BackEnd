@@ -87,7 +87,6 @@ export const Loginuser = async (req, res) => {
         content: "# Markdown Viewer",
       });
     }
-    
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Login Failed" });
@@ -114,7 +113,7 @@ export const forgotPassword = async (req, res) => {
       const tokenString = userExists.token;
       const mailId = req.body.email;
 
-      const resetLink = `${process.env.Reset_Link}?token=${tokenString}&email=${mailId}`;
+      const resetLink = `${process.env.Reset_Link}/${tokenString}/${mailId}`;
       const message = `
             <p>Hello ${userExists.lastname},</p>
             <p>You have requested to reset your password for URL Shortner. Click the button below to reset it:</p>
@@ -209,8 +208,7 @@ export const CreateMarkDownSave = async function (request, response) {
         response.json({ message: "Something went wrong" });
       }
     }
-  }catch (error) {
+  } catch (error) {
     console.log(error);
   }
 };
-
