@@ -113,7 +113,7 @@ export const forgotPassword = async (req, res) => {
       const tokenString = userExists.token;
       const mailId = req.body.email;
 
-      const resetLink = `https://markdownpreview-frontend.netlify.app/resetpassword/${tokenString}/${mailId}`;
+      const resetLink = `${process.env.Reset_link}?token=${tokenString}&email=${mailId}`;
       const message = `
             <p>Hello ${userExists.lastname},</p>
             <p>You have requested to reset your password for URL Shortner. Click the button below to reset it:</p>
