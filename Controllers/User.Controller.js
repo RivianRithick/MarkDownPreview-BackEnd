@@ -212,3 +212,13 @@ export const CreateMarkDownSave = async function (request, response) {
     console.log(error);
   }
 };
+
+export const GetUserCount = async (req, res) => {
+   try {
+    const totalUsers = await User.countDocuments();
+    res.json({ totalUsers });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

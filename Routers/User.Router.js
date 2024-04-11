@@ -2,6 +2,7 @@ import express from "express";
 import {
   CreateMarkDown,
   CreateMarkDownSave,
+  GetUserCount,
   ListAllUsers,
   Loginuser,
   RegisterUser,
@@ -18,5 +19,6 @@ userRouter.put("/resetpassword", ResetPassword);
 userRouter.get("/listallusers", ListAllUsers)
 userRouter.post('/create-markdown', CreateMarkDown)
 userRouter.post("/save/:email", CreateMarkDownSave);
+userRouter.get("/getUserCount", GetUserCount);
 
 export default userRouter;

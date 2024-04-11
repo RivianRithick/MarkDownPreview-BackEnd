@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema(
     email: String,
     password: String,
     token: String,
+    date: String
   },
   { versionKey: false }
 );
